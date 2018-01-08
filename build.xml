@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="UnitTestProject" default="build" basedir=".">
+
+  <!-- ========================================================== -->
+  <!-- 定義値 -->
+  <!-- ========================================================== -->
+
+  <!-- プロパティファイル名 -->
+  <property file="build.properties" />
+    
+  <!-- ソース参照 -->
+  <path id="build.src">
+    <pathelement path="${src.dir}" />
+    <pathelement path="${test.dir}" />
+    <pathelement path="${stub.dir}" />
+    <!-- 【プロジェクト参照をする場合はココにソース参照を追加】 -->
+  </path>
+  
+  <!-- ライブラリ参照 -->
+  <path id="build.classpath">
+    <fileset dir="${lib.dir}" includes="**/*" />
+    <fileset dir="${test.lib.dir}" includes="**/*" />
+    <!-- 【プロジェクト参照をする場合はココにライブラリ参照を追加】 -->
+  </path>
+
+  <!-- ========================================================== -->
+  <!-- Antタスク実行順序 -->
+  <!-- ========================================================== -->
+  <target name="build">
+    <antcall target="clean" />
+    <antcall target="compile" />
+    <antcall target="create.jar" />
+  </target>
+  <target name="build-unitTest">
+    <antcall target="clean" />
+    <antcall target="compile" />
+    <antcall target="create.jar" />
+    <antcall target="unitTest" />
+  </target>
+
+  <!-- ========================================================== -->
+  <!-- ディレクトリをクリア -->
+  <!-- ========================================================== -->
+  <target name="clean">
+    <delete dir="${class.dir}" />
+    <delete dir="${jar.dir}" />
+    <delete dir="${report.dir}" />
+    <mkdir dir="${class.dir}" />
+    <mkdir dir="${jar.dir}" />
+    <mkdir dir="${report.dir}" />
+  </target>
+
+  <!-- ========================================================== -->
+  <!-- コンパイル -->
+  <!-- ========================================================== -->
+  <target name="compile">
+    <javac destdir="${class.dir}" encoding="${src.encoding}" debug="on" includeAntRuntime="no" failonerror="false">
+      <src refid="build.src" />
+      <classpath refid="build.classpath" />
+    </javac>
+  </target>
+
+  <!-- ========================================================== -->
+  <!-- JARファイル作成 -->
+  <!-- ========================================================== -->
+  <target name="create.jar">
+    <jar destfile="${jar.dir}/${jar.name}">
+      <fileset dir="${src.dir}" includes="${create.jar.src.dir.includes}"/>
+      <fileset dir="${class.dir}" excludes="${create.TEST-jar.class.dir.includes}"/>
+    </jar>
+    <jar destfile="${jar.dir}/TEST-${jar.name}">
+      <fileset dir="${class.dir}" includes="${create.TEST-jar.class.dir.includes}"/>
+    </jar>
+  </target>
+  
+  <!-- ========================================================== -->
+  <!-- ユニットテスト実行 -->
+  <!-- ========================================================== -->
+  <target name="unitTest">
+    <junit fork="yes" maxmemory="512m" printsummary="on">
+      <classpath location="${class.dir}" />
+      <classpath refid="build.classpath" />
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${report.dir}">
+        <fileset dir="${test.dir}">
+          <include name="${unitTest.test.dir.include}" />
+          <exclude name="${unitTest.test.dir.exclude}" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+</project>
+
