@@ -2,4 +2,6 @@ stubssrc/*
 !.gitkeep
 lib/*
 !.gitkeep
+testlib/*
+!.gitkeep
 
